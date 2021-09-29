@@ -700,7 +700,8 @@ enum MLFilterOperandLayout {
   "oihw",
   "hwio",
   "ohwi",
-  "ihwo"
+  "ihwo",
+  "iohw"
 };
 
 enum MLAutoPad {
@@ -764,6 +765,9 @@ partial interface MLGraphBuilder {
 
                 "ihwo":
                     - [input_channels/groups, height, width, output_channels]
+
+                "iohw":
+                    - [input_channels/groups, output_channels, height, width]
 
     **Returns:** an {{MLOperand}}. The output 4-D tensor that contains the convolution result. The output shape is interpreted according to the *options.layout* value. More specifically the sizes of the last two dimensions of the output tensor, the spatial dimensions, for the convolution operation can be calculated as follow:
 
