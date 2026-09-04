@@ -12,9 +12,18 @@ dir = os.path.dirname(__file__)
 filename = os.path.join(dir, '../index.bs')
 
 def clang_format(text):
-    return subprocess.run(
-        ['clang-format', '--assume-filename=.js', '--style=file'],
-        capture_output=True, text=True, input=text.strip()).stdout
+    try:
+        result = subprocess.run(
+            ['clang-format', '--assume-filename=.js', '--style=file'],
+            capture_output=True, text=True, encoding='utf-8', input=text.strip())
+    except FileNotFoundError:
+        raise SystemExit('clang-format not found; install it and try again.')
+
+    # Bail out rather than silently replacing the block with empty output.
+    if result.returncode != 0:
+        raise SystemExit(f'clang-format failed: {result.stderr.strip()}')
+
+    return result.stdout
 
 def replace(content):
     # Reformat the JS content.
@@ -33,7 +42,7 @@ def replace(content):
 
 
 # Slurp in the file.
-f = open(filename)
+f = open(filename, encoding='utf-8')
 content = f.read()
 f.close()
 
@@ -43,7 +52,7 @@ content = re.sub(r'(<pre highlight="js"> *\n)(.*?)( *</pre>)',
                  flags=re.DOTALL)
 
 # Write the file back out.
-f = open(filename, 'w', newline='\n')
+f = open(filename, 'w', newline='\n', encoding='utf-8')
 f.write(content)
 f.close()
 
